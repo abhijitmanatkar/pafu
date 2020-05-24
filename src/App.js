@@ -1,8 +1,7 @@
 import React from 'react';
 import './App.css';
-import codeforces from './codeforces';
-import changes from './changes.js';
-import splash from './splash.png';
+import codeforces from './codeforces'
+import changes from './changes.js'
 
 const BLANK_TAGS = {
     'binary search' : {submissionCount: 0, strength: 1000},
@@ -48,14 +47,11 @@ class App extends React.Component {
         this.state = {
             handle : '',
             tags : BLANK_TAGS,
-            weakTags : [],
             suggestedProblems : [],
             submissions: []
         };
         this.handleHandleChange = this.handleHandleChange.bind(this);
         this.getSubmissions = this.getSubmissions.bind(this);
-        this.updateStrengths = this.updateStrengths.bind(this);
-        this.getWeakTags = this.getWeakTags.bind(this);
     }
 
     handleHandleChange(event) {
@@ -64,50 +60,19 @@ class App extends React.Component {
 
     getSubmissions() {
         codeforces.getSubmissions(this.state.handle).then(submissions =>{
-            this.setState({submissions: submissions}, this.updateStrengths);
+            this.setState({submissions: submissions});
         });
-    }
-
-    updateStrengths() {
-        let tags = JSON.parse(JSON.stringify(BLANK_TAGS));
-        let submissions = this.state.submissions.reverse();
-        for(let sub of submissions){
-            let prob = sub.problem;
-            for(let tag of prob.tags){
-                if(tags[tag]){
-                    tags[tag].submissionCount += 1;
-                    tags[tag].strength = changes(tags[tag].strength, prob.rating, sub.verdict);
-                }
-            }
-        }
-        this.setState({tags: tags}, this.getWeakTags);
-    }
-
-    getWeakTags() {
-        let tagList = Object.entries(this.state.tags);
-        let weakTags = [];
-        tagList = tagList.filter(tag => tag[1].submissionCount >= 3);
-        tagList.sort((a,b) => a[1].strength - b[1].strength);
-        for(let i = 0; i < Math.min(5,tagList.length); i++){
-            weakTags.push(tagList[i][0]);
-        }
-        this.setState({weakTags: weakTags});
     }
 
     render() {
         return (
             <div className="App">
-                <div className="splash">
-                    <img src={splash} alt="Splash"/>
-                </div>
-                <div className="prompt">
-                    Enter your codeforces handle to get suggestions for problems to solve.
-                </div>
-                <div className="inp">
+                <h1>Cf-Suggester</h1>
+                <div>
                     <input onChange={this.handleHandleChange} placeholder="enter codeforces handle" />
                     <button onClick={this.getSubmissions}>Go</button>
                 </div>
-                {this.state.weakTags.map(tag => <h4>{tag}</h4>)}
+                {/*this.state.submissions.map(sub => sub.id.toString())*/}
             </div>
             //input for handle here
             //suggested problems here
